@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { router } from "expo-router";
 
-type ItemProps = { title: string ,id:string};
+type ItemProps = { data: Task[], id:string, title:string};
 
-export const Item = ({ title,id }: ItemProps) => (
+export const Item = ({ data, id, title }: ItemProps) => (
   <Pressable onPress={() => router.navigate({pathname:"/itemDetail",params:{id:id}})}>
     <View style={styles.item}>
       <Text style={styles.title}>{title}</Text>

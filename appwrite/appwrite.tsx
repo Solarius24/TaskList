@@ -1,47 +1,50 @@
-import { StatusBar } from "expo-status-bar";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
-import { Client, Account, ID, Models } from "react-native-appwrite";
-import React, { useState } from "react";
+import { Client, Databases, ID } from "react-native-appwrite";
 
-let client: Client;
-let account: Account;
-
-client = new Client();
-client
+export const client = new Client()
   .setEndpoint("https://cloud.appwrite.io/v1")
-  .setProject("66f063e800132539b22c")
-  .setPlatform("com.task_list");
+  .setProject("66f063e800132539b22c");
 
-account = new Account(client);
-export default function App() {
-  const [loggedInUser, setLoggedInUser] =
-    useState<Models.User<Models.Preferences> | null>(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+export const databases = new Databases(client);
 
-  async function login(email: string, password: string) {
-    await account.createEmailPasswordSession(email, password);
-    setLoggedInUser(await account.get());
-  }
+export async function addTask(content: string, title: string): Promise<Task> {
+  const newTask = { content: content, title: title };
 
-  async function register(email: string, password: string, name: string) {
-    await account.create(ID.unique(), email, password, name);
-    await login(email, password);
-    setLoggedInUser(await account.get());
-  }
-  return (
-    <View></View>
-    // ... Implement your UI here
+  const response = await databases.createDocument(
+    "66f0660500145eddc603",
+    "66f0661200128b531dae",
+    ID.unique(),
+    newTask
   );
+
+  const task: Task = {
+    $id: response.$id,
+    $createdAt: response.$createdAt,
+    title: response.title,
+    content: response.content,
+  };
+
+  return task;
 }
 
-const styles = StyleSheet.create({
-  // ... define some tyles
-});
+export async function getTasks(): Promise<Task[]> {
+  const response = await databases.listDocuments(
+    "66f0660500145eddc603",
+    "66f0661200128b531dae"
+  );
+  const tasks: Task[] = response.documents.map((doc) => ({
+    $id: doc.$id,
+    content: doc.content,
+    title: doc.title,
+    $createdAt: doc.$createdAt,
+  }));
+
+  return tasks;
+}
+
+// export async function deleteNote(noteId: string) {
+//   await databases.deleteDocument(
+//     '66f0660500145eddc603',
+//     '66f0661200128b531dae',
+//     noteId
+//   )
+// }

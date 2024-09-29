@@ -1,11 +1,9 @@
-import { Text, View, TextInput, Button, Alert } from "react-native";
+import { View, TextInput, Button} from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { GlobalContext, useGlobalContext } from "@/context/GlobalProvider";
-import { useContext } from "react";
 import { router } from "expo-router";
+import { addTask } from "@/appwrite/appwrite";
 
 export default function newItem() {
-  const { data, setData } = useContext(GlobalContext);
   const {
     control,
     handleSubmit,
@@ -18,30 +16,13 @@ export default function newItem() {
     },
   });
 
-  const onSubmit = (formData) => {
-    setData([formData, ...data]);
+  const onSubmit = (formData: { description: string; title: string; }) => {
+    addTask(formData.description,formData.title)
     router.push("/");
   };
 
   return (
     <View>
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-        }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            placeholder="id"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-          />
-        )}
-        name="id"
-      />
-      {errors.id && <Text>This is required.</Text>}
-
       <Controller
         control={control}
         rules={{
